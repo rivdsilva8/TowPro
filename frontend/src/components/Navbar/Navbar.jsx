@@ -3,71 +3,66 @@ import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { doSignOut } from "../../firebase/FirebaseFunctions";
 import { AuthContext } from "../../firebase/Auth";
+
 export const Navbar = () => {
   const { currentUser } = useContext(AuthContext);
   return <div>{currentUser ? <NavigationAuth /> : <NavigationNonAuth />}</div>;
 };
+
 const NavigationAuth = () => {
   const navigate = useNavigate();
-  const signout = () => {
-    doSignOut();
-    navigate("/");
+
+  const signout = async () => {
+    try {
+      await doSignOut(); // Wait for sign-out operation to complete
+      navigate("/"); // Redirect to home page after signing out
+    } catch (error) {
+      console.error("Error signing out:", error);
+      // Handle error, if any
+    }
   };
+
   return (
-    <>
-      <nav className="title">
-        <ul>
-          <li>
-            <Link to="/" className="playlist-hub">
-              PlaylistHub
-            </Link>
-          </li>
-        </ul>
-      </nav>
-      <nav className="navbar">
-        <ul>
-          <li>
-            <button className="btn" onClick={() => navigate("/account")}>
-              Account
-            </button>
-          </li>
-          <li>
-            <button className="btn" type="button" onClick={signout}>
-              Sign Out
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </>
+    <div className="navbar bg-black">
+      <div className="flex-1">
+        <Link to="/" className="btn btn-ghost text-xl">
+          TowPro
+        </Link>{" "}
+        |
+        <Link to="/draw" className="btn btn-ghost text-xl">
+          Map
+        </Link>
+      </div>
+      <div className="flex-none">
+        <button onClick={signout} className="btn btn-ghost text-xl">
+          Sign Out
+        </button>
+      </div>
+    </div>
   );
 };
+
 const NavigationNonAuth = () => {
-  const navigate = useNavigate();
   return (
-    <>
-      <nav className="title">
-        <ul>
-          <li>
-            <Link to="/" className="playlist-hub">
-              PlaylistHub
-            </Link>
-          </li>
-        </ul>
-      </nav>
-      <nav className="navbar">
-        <ul>
-          <li>
-            <button className="btn" onClick={() => navigate("/login")}>
-              Login
-            </button>
-          </li>
-          <li>
-            <button className="btn" onClick={() => navigate("/signup")}>
-              Signup
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </>
+    <div className="navbar bg-black">
+      <div className="flex-1">
+        <Link to="/" className="btn btn-ghost text-xl">
+          TowPro
+        </Link>{" "}
+        |
+        <Link to="/map" className="btn btn-ghost text-xl">
+          Map
+        </Link>
+      </div>
+      <div className="flex-none">
+        <Link to="/login" className="btn btn-ghost text-xl">
+          Login
+        </Link>
+        |
+        <Link to="/signup" className="btn btn-ghost text-xl">
+          Sign Up
+        </Link>
+      </div>
+    </div>
   );
 };

@@ -6,6 +6,7 @@ import { Signup } from "../../pages/Signup/Signup";
 import { NotFound } from "../../pages/NotFound/NotFound";
 import { Navbar } from "../Navbar/Navbar";
 import { AuthProvider } from "../../firebase/Auth";
+import { Map } from "../Map/Map";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route exact path="/" element={<Home />} />
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/signup" element={<Signup />} />
+        <Route exact path="/map" element={<Map />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
