@@ -2,7 +2,10 @@ import express from "express";
 const app = express();
 import session from "express-session";
 import configRoutes from "./routes/routeindex.js";
-
+import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from "react";
-import firebaseApp from "./Firebase";
-
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 export const AuthContext = React.createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
-
+  const auth = getAuth();
   useEffect(() => {
-    firebaseApp.auth().onAuthStateChanged((user) => {
+    let myListener = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setLoadingUser(false);
     });
+    return () => {
+      if (myListener) myListener();
+    };
   }, []);
 
   if (loadingUser) {
-    return <div>Loading....</div>;
+    return (
+      <div>
+        <h1>Loading....</h1>
+      </div>
+    );
   }
 
   return (
