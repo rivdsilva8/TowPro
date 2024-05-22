@@ -1,38 +1,32 @@
-import React from 'react';
-import './Home.css';
+import React from "react";
+import "./Home.css";
 export const Home = () => {
   return (
     <div className="home-container">
-      <h1>Welcome to PlaylistHub!</h1>
-      <p>
-        Discover, create, and share music playlists with friends. Whether
-        you're searching for curated playlists or eager to share your latest
-        compilation, PlaylistHub has got you covered.
-      </p>
-      <h2>Project Description</h2>
-      <p>
-        Finding and sharing music playlists can be cumbersome with the myriad
-        of streaming platforms available. PlaylistHub simplifies this process
-        by providing a central hub where users can create, share, and explore
-        playlists effortlessly.
-      </p>
-      <h3>Features</h3>
-      <ul>
-        <li>Song Search</li>
-        <li>Individual Song Page</li>
-        <li>Sharing Playlist</li>
-        <li>Followed User Playlists</li>
-        <li>Individual Playlist Page</li>
-        <li>User's Statistics Page</li>
-        <li>User Account Management</li>
-      </ul>
-      <h2>Get Started</h2>
-      <p>
-        Ready to dive in? Start exploring PlaylistHub by navigating through our
-        various pages using the navigation bar. Sign up to unlock additional 
-        features such as saving playlists and accessing personalized statistics.
-      </p>
+      <div
+        className="hero min-h-screen"
+        style={{
+          backgroundImage:
+            "url(https://ftl-media.imgix.net/applicationpage_towrecovery_hero_628x380.jpg)",
+        }}
+      >
+        <div className="hero-overlay bg-opacity-70"></div>
+        <div className="hero-content text-center text-neutral-content">
+          <div className="max-w-md white">
+            <h1 className="mb-5 text-5xl font-bold">TwoPro</h1>
+            <p className="mb-5 white">
+              Welcome to TowPro, where cutting-edge technology meets
+              unparalleled efficiency in every tow. Our advanced GPS systems
+              ensure swift response times and seamless operations, allowing us
+              to reach you faster and provide the assistance you need, when you
+              need it. Trust in our commitment to employing the latest
+              technological innovations for a smoother, more reliable towing
+              experience.
+            </p>
+            <button className="btn btn-primary">Get Started</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
-

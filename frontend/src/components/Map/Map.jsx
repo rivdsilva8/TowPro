@@ -90,11 +90,7 @@ export const Map = () => {
   const lightModeUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   return (
-    <div
-      className={`${
-        darkMode ? "bg-[#242424] text-white" : "bg-white text-black"
-      } h-100vh`}
-    >
+    <div className={` h-100vh`}>
       {/* <div className="absolute top-4 right-4 flex items-center mt-2 ">
         <label className="flex cursor-pointer gap-2 items-center">
           <svg
@@ -133,13 +129,11 @@ export const Map = () => {
         </label>
       </div> */}
 
-      <h1 className="text-center p-4 ">Map</h1>
-
       <MapContainer
         center={[40.64894927418784, -73.95008611696765]}
         zoom={30}
         ref={mapRef}
-        className="h-100vh mb-1"
+        className="h-100vh mb-1 mt-6"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -168,7 +162,7 @@ export const Map = () => {
       {location.loaded && !location.error && (
         <div className="flex items-center justify-center ">
           <button
-            className="bg-blue-400 m-3 p-2 rounded"
+            className=" m-3 p-2 btn btn-wide rounded"
             onClick={showMyLocation}
           >
             Locate Me
