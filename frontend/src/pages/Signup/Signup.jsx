@@ -5,37 +5,45 @@ import {doCreateUserWithEmailAndPassword} from '../../firebase/FirebaseFunctions
 import {AuthContext} from '../../firebase/Auth';
 import axios from "axios";
 import SocialSignIn from '../Login/SocialSignIn';
+import {Typography} from "@mui/material";
 export const Signup = () => {
   const {currentUser} = useContext(AuthContext);
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const handleSignUp = async (e) => {
     e.preventDefault();
-    const {displayName, email, passwordOne, passwordTwo, profileImage, publicPlaylists} = e.target.elements;
+    const {displayName, email, passwordOne, passwordTwo, publicPlaylists} = e.target.elements;
     if (passwordOne.value !== passwordTwo.value) {
       setErrorMessage('Passwords do not match');
       return false;
     }
     try {
       setLoading(true);
+      console.log(displayName.value)
+      console.log(email.value)
+      console.log(publicPlaylists.checked)
+      try{
+      const response = await axios.post('/api/users/register', {
+        displayName: displayName.value,
+        email: email.value,
+        public: publicPlaylists.checked,
+        accountType: "email",
+        password: passwordOne.value
+      });
+      
       await doCreateUserWithEmailAndPassword(
         email.value,
         passwordOne.value,
         displayName.value
       );
-      console.log(displayName.value)
-      console.log(email.value)
-      console.log(profileImage.files[0])
-      console.log(publicPlaylists.checked)
-      const response = await axios.post('/api/users/register', {
-        displayName: displayName.value,
-        email: email.value,
-        image: URL.createObjectURL(profileImage.files[0]),
-        public: publicPlaylists.checked,
-        accountType: "email"
-      });
+      console.log(currentUser)
       setErrorMessage('');
       setLoading(false);
+      }catch(e){
+        console.log(e)
+        setErrorMessage(e.response.data.message || e.response.data.error || e.message);
+        setLoading(false);
+      }
     } catch (error) {
       setErrorMessage(error.message);
       setLoading(false);
@@ -43,7 +51,7 @@ export const Signup = () => {
   };
 
   if (currentUser) {
-    return <Navigate to='/home' />;
+    return <Navigate to='/' />;
   }
 
   if (loading){
@@ -51,44 +59,38 @@ export const Signup = () => {
   }
 
   return (
-    <div className='card'>
-      <h1>Sign up</h1>
+    <div className="signup">
+      <h4>Sign up</h4>
       <SocialSignIn />
-      {errorMessage && <h4 className='error'>{errorMessage}</h4>}
+      {errorMessage && <Typography color="error">{errorMessage}</Typography>}
       <form onSubmit={handleSignUp}>
-        <div className='form-group'>
-          <label>
-            Name:
+        <div className='text_area'>
             <br />
             <input
-              className='form-control'
               required
               name='displayName'
               type='text'
               placeholder='Name'
+              className="text_input"
               autoFocus={true}
             />
-          </label>
         </div>
-        <div className='form-group'>
-          <label>
-            Email:
+        <div className='text_area'>
             <br />
             <input
-              className='form-control'
+              className="text_input"
               required
               name='email'
               type='email'
               placeholder='Email'
             />
-          </label>
         </div>
-        <div className='form-group'>
-          <label>
-            Password:
+        <p>Password must be at least 8 characters with no spaces, contain a number, and contain a special character (such as !, ?, @, #, etc.).</p>
+        <br />
+        <div className='text_area'>
             <br />
             <input
-              className='form-control'
+              className="text_input"
               id='passwordOne'
               name='passwordOne'
               type='password'
@@ -96,38 +98,23 @@ export const Signup = () => {
               autoComplete='off'
               required
             />
-          </label>
         </div>
-        <div className='form-group'>
-          <label>
-            Confirm Password:
+        <div className='text_area'>
             <br />
             <input
-              className='form-control'
               name='passwordTwo'
               type='password'
               placeholder='Confirm Password'
               autoComplete='off'
+              className="text_input"
               required
             />
-          </label>
         </div>
+        <br />
+        <br />
         <div className='form-group'>
           <label>
-            Profile Image:
-            <br />
-            <input
-              className='form-control'
-              name='profileImage'
-              type='file'
-              accept='image/*'
-              required
-            />
-          </label>
-        </div>
-        <div className='form-group'>
-          <label>
-            Check the box if you would like to make your playlists public:
+            Check the box if you would like to make your playlists public:  
             <input
               className='form-check-input'
               name='publicPlaylists'
@@ -136,7 +123,7 @@ export const Signup = () => {
           </label>
         </div>
         <button
-          className='button'
+          className='btn'
           id='submitButton'
           name='submitButton'
           type='submit'

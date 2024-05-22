@@ -1,8 +1,9 @@
 import { Router } from "express";
 const router = Router();
 import { userData } from "../data/index.js";
-import { createClient } from 'redis';
-import SpotifyWebApi from "spotify-web-api-node";
+import xss from "xss";
+import { createClient } from "redis";
+
 const client = createClient();
 client.connect().then(() => {});
 
@@ -13,115 +14,237 @@ router.route("/register").post(async (req, res) => {
       .status(400)
       .json({ error: "Error: Must enter data for the fields" });
   }
-  let name = createUserData.displayName;
-  let email = createUserData.email;
-  let image = createUserData.image;
-  console.log(image);
-  let publicPlaylist = createUserData.public;
-  let type = createUserData.accountType;
+  let name = xss(createUserData.displayName);
+  let email = xss(createUserData.email);
+  console.log(createUserData);
+  let publicPlaylist = xss(createUserData.public);
+  let type = xss(createUserData.accountType);
+  let password = xss(createUserData.password);
   let result = undefined;
   try {
     result = await userData.registerUser(
       name,
       email,
-      image,
-      publicPlaylist,
-      type
+      createUserData.public,
+      type,
+      password
     );
   } catch (e) {
-    return res.status(400).json({ error: "Error: " + e });
+    return res.status(e.code).json({ error: "Error: " + e.error });
   }
   await client.del(`userexist/${email}`);
   return res.status(200).json(result);
 });
 
 router.route("/account").get(async (req, res) => {
-  const email = req.query.email;
+  const email = xss(req.query.email);
   let exists = await client.exists(`account/${email}`);
   if (exists) {
     let result = await client.get(`account/${email}`);
     return res.status(200).json(JSON.parse(result));
-  }
-  else{
+  } else {
     let result = undefined;
     try {
       result = await userData.getAccount(email);
     } catch (e) {
-      return res.status(400).json({ error: "Error: " + e });
+      return res.status(e.code || 400).json({ error: "Error: " + e.error });
     }
     await client.SETEX(`account/${email}`, 3600, JSON.stringify(result));
     return res.status(200).json(result);
   }
 });
 
+router.route("/profile").get(async (req, res) => {
+  const id = xss(req.query.userId);
+  let result = undefined;
+    try {
+      result = await userData.getUserById(id);
+    } catch (e) {
+      return res.status(e.code || 400).json({ error: "Error: " + e.error });
+    }
+    return res.status(200).json(result);
+});
+
 router.route("/userexist").get(async (req, res) => {
-  const email = req.query.email;
+  const email = xss(req.query.email);
   let exists = await client.exists(`userexist/${email}`);
   if (exists) {
     let result = await client.get(`userexist/${email}`);
     return res.status(200).json(JSON.parse(result));
-  }
-  else{
-    try{
+  } else {
+    try {
       const result = await userData.userExist(email);
       await client.SETEX(`userexist/${email}`, 3600, JSON.stringify(result));
       return res.status(200).json(result);
-    }catch(e){
-      return res.status(400).json({ error: "Error: " + e });
+    } catch (e) {
+      return res.status(500).json({ error: "Error: " + e });//this should always work, if not, must be mongo server error
     }
   }
 });
 
-router.route("/spotifyAuth").post(async (req, res) => {
-  try {
-    const code = req.body.code;
-    console.log(process.env.CLIENT_ID);
-    console.log(process.env.CLIENT_SECRET);
-    const SpotifyApi = new SpotifyWebApi({
-      redirectUri: "http://localhost:5173",
-      clientId: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
-    });
-
-    await SpotifyApi.authorizationCodeGrant(code).then((data) => {
-      return res.json({
-        accessToken: data.body.access_token,
-        refreshToken: data.body.refresh_token,
-        expiresIn: data.body.expires_in,
-      });
-    });
-  } catch (error) {
-    return res.sendStatus(400);
+router.route("/follow").patch(async (req, res) => {
+  const followData = req.body;
+  if (!followData || Object.keys(followData).length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Error: Must press the follow button" });
   }
-});
-
-router.route("/refresh").post(async (req, res) => {
+  let email = xss(followData.email);
+  let id =  xss(followData.followId);
+  let result = undefined;
   try {
-    const refreshToken = req.body.refreshToken;
-    const SpotifyApi = new SpotifyWebApi({
-      redirectUri: "http://localhost:5173",
-      clientId: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
-      refreshToken,
-    });
-
-    SpotifyApi.refreshAccessToken()
-      .then((data) => {
-        res.json({
-          accessToken: data.body.accessToken,
-          expiresIn: data.body.expiresIn,
-        });
-        console.log(data.body);
-        console.log("Access token is refreshed");
-
-        SpotifyApi.setAccessToken(data.body["access_token"]);
-      })
-      .catch(() => {
-        return res.sendStatus(400);
-      });
-  } catch (error) {
-    return res.sendStatus(400);
+    result = await userData.followUser(
+      email, id
+    );
+  } catch (e) {
+    return res.status(e.code || 500).json({ error: "Error: " + e.error });
   }
-});
+  await client.del(`account/${email}`);
+  return res.status(200).json(result);
+})
 
+router.route("/unfollow").patch(async (req, res) => {
+  const followData = req.body;
+  if (!followData || Object.keys(followData).length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Error: Must press the unfollow button" });
+  }
+  let email = xss(followData.email);
+  let id =  xss(followData.unfollowId);
+  let result = undefined;
+  try {
+    result = await userData.unfollowUser(
+      email, id
+    );
+  } catch (e) {
+    return res.status(e.code || 500).json({ error: "Error: " + e.error });
+  }
+  await client.del(`account/${email}`);
+  return res.status(200).json(result);
+})
+router.route("/save").patch(async (req, res) => {
+  const saveData = req.body;
+  if (!saveData || Object.keys(saveData).length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Error: Must press the save button" });
+  }
+  let email = xss(saveData.email);
+  let id =  xss(saveData.saveId);
+  let result = undefined;
+  try {
+    result = await userData.savePlaylist(
+      email, id
+    );
+  } catch (e) {
+    return res.status(e.code || 500).json({ error: "Error: " + e.error });
+  }
+  await client.del(`account/${email}`);
+  return res.status(200).json(result);
+})
+
+router.route("/unsave").patch(async (req, res) => {
+  const saveData = req.body;
+  if (!saveData || Object.keys(saveData).length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Error: Must press the unsave button" });
+  }
+  let email = xss(saveData.email);
+  let id =  xss(saveData.unsaveId);
+  let result = undefined;
+  try {
+    result = await userData.unsavePlaylist(
+      email, id
+    );
+  } catch (e) {
+    return res.status(e.code || 500).json({ error: "Error: " + e.error });
+  }
+  await client.del(`account/${email}`);
+  return res.status(200).json(result);
+})
+router.route("/setpublic").patch(async (req, res) => {
+  const publicData = req.body;
+  if (!publicData || Object.keys(publicData).length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Error: Must press the set public button" });
+  }
+  let email = xss(publicData.email);
+  let result = undefined;
+  try {
+    result = await userData.setUserPublic(
+      email
+    );
+    console.log(result)
+  if (result && result.acknowledged) {
+    await client.del("allplaylists");
+    await client.del(`account/${email}`);
+    return res.status(200).json({ message: "Profile set to public" });
+  }
+  } catch (e) {
+    console.log(e)
+    return res.status(e.code || 500).json({ error: "Error: " + e.error });
+  }
+  await client.del(`account/${email}`);
+  console.log("deleted")
+  return res.status(200).json(result);
+})
+router.route("/setprivate").patch(async (req, res) => {
+  const publicData = req.body;
+  if (!publicData || Object.keys(publicData).length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Error: Must press the set public button" });
+  }
+  let email = xss(publicData.email);
+  let result = undefined;
+  try {
+    result = await userData.setUserPrivate(
+      email
+    );
+    console.log(result)
+    if (result && result.acknowledged) {
+      await client.del("allplaylists");
+      await client.del(`account/${email}`);
+      console.log("passed")
+      const keys = await client.keys("account*"); 
+      !!keys.length && client.unlink(keys); 
+      const newKeys = await client.keys("account*");
+      return res.status(200).json({ message: "Profile set to private" });
+    }
+  } catch (e) {
+    return res.status(e.code || 500).json({ error: "Error: " + e.error });
+  }
+  await client.del(`account/${email}`);
+  console.log("passed")
+  const keys = await client.keys("account*"); 
+  !!keys.length && client.unlink(keys); 
+  const newKeys = await client.keys("account*");
+  return res.status(200).json(result);
+})
+
+router.route("/getfollowedusers").get(async (req, res) => {
+  try {
+    const ids = req.query.followedIds;
+    for (let x of ids){
+      x = xss(x);
+    }
+      const result = await userData.getFollowedUsers(ids);
+      return res.status(200).json(result);
+    } catch (e) {
+      return res.status(e.code || 400).json({ error: "Error: " + e.message});
+    }
+});
+router.route("/userStats").get(async (req, res) => {
+  const email = xss(req.query.userEmail);
+  let result = undefined;
+  try {
+    result = await userData.getUserStats(email);
+  } catch (e) {
+    return res.status(e.code || 400).json({ error: "Error: " + e.error });
+  }
+  return res.status(200).json(result);
+});
 export default router;

@@ -2,13 +2,13 @@ import { useState } from "react";
 import {
   doGoogleSignIn,
   doGithubSignIn,
-  doFacebookSignIn
+  doFacebookSignIn,
 } from "../../firebase/FirebaseFunctions";
 import axios from "axios";
-
-const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=ecc83a6641e049bf952e546ede620995&response_type=code&redirect_uri=http://localhost:5173&scope=streaming%20user-read-email%20user-read-private`;
+import { useNavigate } from "react-router-dom";
 
 const SocialSignIn = () => {
+  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const googleSignOn = async () => {
     try {
@@ -28,19 +28,19 @@ const SocialSignIn = () => {
           const response = await axios.post("/api/users/register", {
             displayName: user.displayName,
             email: user.email,
-            image: user.photoURL,
             public: false,
             accountType: "google",
           });
 
-          window.location.href = AUTH_URL;
+          window.location.href = "/";
         }
+        navigate("/");
       }
     } catch (error) {
       if (typeof error == "string") {
         setErrorMessage(error);
       } else {
-        setErrorMessage(error.message);
+        setErrorMessage(error.response.data.error);
       }
     }
   };
@@ -63,23 +63,23 @@ const SocialSignIn = () => {
           const response = await axios.post("/api/users/register", {
             displayName: user.displayName,
             email: user.email,
-            image: user.photoURL,
             public: false,
             accountType: "facebook",
           });
 
-          window.location.href = AUTH_URL;
+          window.location.href = "/";
         }
+        navigate("/");
       }
     } catch (error) {
       if (typeof error == "string") {
         setErrorMessage(error);
       } else {
-        setErrorMessage(error.message);
+        setErrorMessage(error.response.data.error);
       }
     }
   };
-  
+
   const githubSignOn = async () => {
     try {
       let user = await doGithubSignIn();
@@ -99,17 +99,17 @@ const SocialSignIn = () => {
           const response = await axios.post("/api/users/register", {
             displayName: user.displayName,
             email: user.email,
-            image: user.photoURL,
             public: false,
             accountType: "github",
           });
         }
+        navigate("/");
       }
     } catch (error) {
       if (typeof error == "string") {
         setErrorMessage(error);
       } else {
-        setErrorMessage(error.message);
+        setErrorMessage(error.response.data.error);
       }
     }
   };
