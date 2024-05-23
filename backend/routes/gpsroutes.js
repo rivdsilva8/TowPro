@@ -22,6 +22,8 @@ gpsroutes.post("/", async (req, res) => {
     res.status(200).send("GPS data entered");
   } catch (e) {
     console.log(e);
+    console.error("Error posting GPS data:", e.message);
+    res.status(400).send({ error: e.message });
   }
 });
 

@@ -53,9 +53,10 @@ export const Map = () => {
     lng: 0,
     header: 0,
   });
-  const [lat, setLat] = useState("23");
-  const [lng, setLng] = useState("23");
-  const [header, setHeader] = useState("23");
+  const [lat, setLat] = useState(0);
+  const [lng, setLng] = useState(0);
+  const [header, setHeader] = useState(0);
+  const [errors, setErrors] = useState({});
   const [rAngle, setRAngle] = useState(0);
   const mapRef = useRef();
 
@@ -109,18 +110,41 @@ export const Map = () => {
     const interval = setInterval(fetchLocationData, 1000);
 
     return () => clearInterval(interval);
-  }, [locationData]); // Add locationData as a dependency
+  }, [locationData]);
+
+  const validateForm = () => {
+    const errors = {};
+    const latNum = parseFloat(lat);
+    const lngNum = parseFloat(lng);
+
+    if (isNaN(latNum) || latNum < -90 || latNum > 90) {
+      errors.lat = "Latitude must be a number between -90 and 90.";
+    }
+
+    if (isNaN(lngNum) || lngNum <= -180 || lngNum > 180) {
+      errors.lng = "Longitude must be a number between -180 and 180.";
+    }
+
+    if (isNaN(header) || header <= 0 || header > 360) {
+      errors.header = "Header must be a number between 0 and 360.";
+    }
+
+    return errors;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios
-      .post("http://localhost:3000/gpsstatus", { lat, lng, header })
-      .then((response) => {
-        // After successful POST request, make a GET request to fetch updated location data
-        console.log("posted successfully");
-        axios
-          .get("http://localhost:3000/gpsstatus")
-          .then((response) => {
+    const validationErrors = validateForm();
+
+    if (Object.keys(validationErrors).length === 0) {
+      setErrors({});
+      // Proceed with form submission
+      await axios
+        .post("http://localhost:3000/gpsstatus", { lat, lng, header })
+        .then((response) => {
+          // After successful POST request, make a GET request to fetch updated location data
+          console.log("posted successfully");
+          axios.get("http://localhost:3000/gpsstatus").then((response) => {
             // Update location data with the response data
             console.log(response.data);
             setLocationData(response.data);
@@ -131,16 +155,16 @@ export const Map = () => {
               animate: true,
               duration: 1, // Animation duration in seconds
             });
-          })
-          .catch((error) => {
-            console.error("Error fetching location data:", error);
           });
-      })
-      .catch((error) => {
-        console.error("Error updating GPS status:", error);
-      });
+        });
+
+      console.log("Form submitted", { lat, lng, header });
+    } else {
+      setErrors(validationErrors);
+    }
   };
 
+  //end of handlesubmit
   return (
     <>
       <MapContainer
@@ -165,7 +189,7 @@ export const Map = () => {
 
       {/* Form */}
       <div className="flex justify-center h-screen bg-white pb-[40px]">
-        <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100 max-h-[425px]">
+        <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100 max-h-[600px] mt-2">
           <form className="card-body" onSubmit={handleSubmit}>
             <h2>Change GPS Marker</h2>
             <div className="form-control">
@@ -181,6 +205,7 @@ export const Map = () => {
                 value={lat}
                 onChange={(e) => setLat(e.target.value)}
               />
+              {errors.lat && <p className="text-red-500">{errors.lat}</p>}
             </div>
             <div className="form-control">
               <label className="label">
@@ -195,6 +220,7 @@ export const Map = () => {
                 value={lng}
                 onChange={(e) => setLng(e.target.value)}
               />
+              {errors.lng && <p className="text-red-500">{errors.lng}</p>}
             </div>
             <div className="form-control">
               <label className="label">
@@ -209,6 +235,7 @@ export const Map = () => {
                 value={header}
                 onChange={(e) => setHeader(e.target.value)}
               />
+              {errors.header && <p className="text-red-500">{errors.header}</p>}
             </div>
             <div className="form-control mt-6">
               <button type="submit" className="btn btn-primary">
