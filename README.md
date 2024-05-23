@@ -21,7 +21,9 @@ There are 2 parts to the application
    ```
    
 4. The Backend server will be running by default on port 3000
-
+  ```bash
+   http://localhost:3000
+   ```
    
 # Front-End :
 1. Navigate to the Frontend by using / or open in a new terminal
