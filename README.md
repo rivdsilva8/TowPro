@@ -66,12 +66,13 @@ There are 2 parts to the application
    ```
 
 ## Making Post Requests to /gpsstatus
-you can either use the UI on /maps page or use postman and post to 
+you can either use the UI on /maps page 
+or use postman and post to endpoint
    ```bash
    http://localhost:3000/gpsstatus
    ```
 
-req.body
+###raw JSON format
    ```bash
    {
     "lat":40.77307293228911,
