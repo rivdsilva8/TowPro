@@ -1,11 +1,28 @@
 import { useState, useRef, useEffect } from "react";
-
+import L from "leaflet";
 import "./Map.css";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { MapContainer, TileLayer, Popup } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import { Icon } from "leaflet";
+import "leaflet-rotatedmarker";
+const RotatedMarker = ({ position, rotationAngle }) => {
+  const icon = new L.Icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
+    iconSize: [38, 38],
+    className: "",
+  });
+
+  return (
+    <Marker
+      position={position}
+      icon={icon}
+      rotationAngle={rotationAngle}
+      rotationOrigin="center center"
+    />
+  );
+};
 
 export const Map = () => {
   const [locationData, setLocationData] = useState({
@@ -106,22 +123,10 @@ export const Map = () => {
         />
 
         {locationData && !locationData.error && (
-          <Marker
+          <RotatedMarker
             position={[locationData.lat, locationData.lng]}
-            rotationAngle={rAngle}
-            icon={
-              new Icon({
-                iconUrl:
-                  "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
-                iconSize: [38, 38],
-              })
-            }
-            className="custom-icon"
-          >
-            <Popup>
-              <h2>You are here</h2>
-            </Popup>
-          </Marker>
+            rotationAngle={90}
+          />
         )}
       </MapContainer>
 
