@@ -72,7 +72,7 @@ or use postman and post to endpoint
    http://localhost:3000/gpsstatus
    ```
 
-###raw JSON format
+### raw JSON format
    ```bash
    {
     "lat":40.77307293228911,
