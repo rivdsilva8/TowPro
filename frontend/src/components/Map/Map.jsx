@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import L from "leaflet";
 import "./Map.css";
+import navCursor from "../../assets/nc.svg";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { MapContainer, TileLayer, Popup } from "react-leaflet";
@@ -13,8 +14,8 @@ const RotatedMarker = ({ position, rotationAngle, mapRef }) => {
 
   useEffect(() => {
     const icon = new L.Icon({
-      iconUrl: "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
-      iconSize: [38, 38],
+      iconUrl: "https://cdn-icons-png.flaticon.com/512/3253/3253113.png",
+      iconSize: [45, 45],
       className: "",
     });
 

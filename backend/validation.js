@@ -102,5 +102,5 @@ export const isValidLongitude = (lng) => {
 };
 
 export const isValidHeader = (header) => {
-  return !isNaN(parseFloat(header)) && header >= 0 && header <= 180;
+  return !isNaN(parseFloat(header)) && header >= 0 && header <= 360;
 };
