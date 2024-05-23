@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+
 import "./Map.css";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
@@ -15,12 +16,8 @@ export const Map = () => {
   const [lat, setLat] = useState("23");
   const [lng, setLng] = useState("23");
   const [header, setHeader] = useState("23");
+  const [rAngle, setRAngle] = useState(0);
   const mapRef = useRef();
-
-  const customIcon = new Icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
-    iconSize: [38, 38],
-  });
 
   const lightModeUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   useEffect(() => {
@@ -52,6 +49,10 @@ export const Map = () => {
         animate: true,
         duration: 1, // Animation duration in seconds
       });
+
+      const newRotationAngle = parseFloat(newLocationData.header) || 0;
+      setRAngle(newRotationAngle);
+      console.log("rotationAngle = ", rAngle);
     };
 
     fetchLocationData();
@@ -105,7 +106,18 @@ export const Map = () => {
         />
 
         {locationData && !locationData.error && (
-          <Marker position={[locationData.lat, locationData.lng]}>
+          <Marker
+            position={[locationData.lat, locationData.lng]}
+            rotationAngle={rAngle}
+            icon={
+              new Icon({
+                iconUrl:
+                  "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
+                iconSize: [38, 38],
+              })
+            }
+            className="custom-icon"
+          >
             <Popup>
               <h2>You are here</h2>
             </Popup>

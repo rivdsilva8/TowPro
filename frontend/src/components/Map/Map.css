@@ -10,3 +10,6 @@
   width: 90%;
   padding-bottom: 40%;
 }
+.custom-icon {
+  transform-origin: center;
+}
