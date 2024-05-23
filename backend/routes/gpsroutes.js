@@ -9,15 +9,15 @@ gpsroutes.post("/", async (req, res) => {
     const { lat, lng, header } = req.body;
     const latFloat = parseFloat(lat);
     const lngFloat = parseFloat(lng);
-    const headerInt = parseInt(header);
-    latestLocation = { lat: latFloat, lng: lngFloat, header: headerInt };
+    const headerFloat = parseFloat(header);
+    latestLocation = { lat: latFloat, lng: lngFloat, header: headerFloat };
     console.log("GPS data received");
     console.log("lat:", latFloat);
     console.log("lng:", lngFloat);
-    console.log("header:", headerInt);
+    console.log("header:", headerFloat);
 
     //mongo insertion
-    let insertion = await gpsData.saveGPSData(latFloat, lngFloat, headerInt);
+    let insertion = await gpsData.saveGPSData(latFloat, lngFloat, headerFloat);
     console.log("GPS data entered into Mongo");
     res.status(200).send("GPS data entered");
   } catch (e) {

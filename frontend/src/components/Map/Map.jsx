@@ -7,22 +7,44 @@ import { MapContainer, TileLayer, Popup } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import { Icon } from "leaflet";
 import "leaflet-rotatedmarker";
-const RotatedMarker = ({ position, rotationAngle }) => {
-  const icon = new L.Icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
-    iconSize: [38, 38],
-    className: "",
-  });
 
-  return (
-    <Marker
-      position={position}
-      icon={icon}
-      rotationAngle={rotationAngle}
-      rotationOrigin="center center"
-    />
-  );
+const RotatedMarker = ({ position, rotationAngle, mapRef }) => {
+  const [marker, setMarker] = useState(null);
+
+  useEffect(() => {
+    const icon = new L.Icon({
+      iconUrl: "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
+      iconSize: [38, 38],
+      className: "",
+    });
+
+    if (marker) {
+      // If marker exists, remove it before creating a new one
+      marker.remove();
+    }
+
+    // Create a new marker with rotation angle
+    const newMarker = L.marker(position, {
+      icon,
+      rotationAngle,
+      rotationOrigin: "center center",
+    }).addTo(mapRef.current);
+
+    // Set the newly created marker
+    setMarker(newMarker);
+
+    // Clean up function to remove the marker when component unmounts
+    return () => {
+      if (marker) {
+        marker.remove();
+      }
+    };
+  }, [position, rotationAngle]); // Re-run effect when position or rotationAngle changes
+
+  return null; // Marker is created directly in the useEffect, so return null here
 };
+
+export default RotatedMarker;
 
 export const Map = () => {
   const [locationData, setLocationData] = useState({
@@ -37,6 +59,12 @@ export const Map = () => {
   const mapRef = useRef();
 
   const lightModeUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+  const icon = new L.Icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
+    iconSize: [38, 38],
+    className: "",
+  });
   useEffect(() => {
     const fetchLocationData = async () => {
       try {
@@ -58,9 +86,11 @@ export const Map = () => {
       }
     };
 
-    const updateLocationData = (newLocationData) => {
+    const updateLocationData = async (newLocationData) => {
       setLocationData(newLocationData);
+      setRAngle(locationData.header);
       console.log("locationData after setting:", newLocationData);
+      console.log(rAngle);
       const newPosition = [newLocationData.lat, newLocationData.lng];
       mapRef.current.setView(newPosition, 20, {
         animate: true,
@@ -68,8 +98,9 @@ export const Map = () => {
       });
 
       const newRotationAngle = parseFloat(newLocationData.header) || 0;
-      setRAngle(newRotationAngle);
-      console.log("rotationAngle = ", rAngle);
+      console.log("locationData after setting:", newLocationData);
+      setRAngle(newRotationAngle); // Update the rotation angle state
+      console.log("rotationAngle = ", newRotationAngle); // Log the new rotation angle
     };
 
     fetchLocationData();
@@ -125,7 +156,8 @@ export const Map = () => {
         {locationData && !locationData.error && (
           <RotatedMarker
             position={[locationData.lat, locationData.lng]}
-            rotationAngle={90}
+            rotationAngle={parseFloat(locationData.header)}
+            mapRef={mapRef}
           />
         )}
       </MapContainer>
