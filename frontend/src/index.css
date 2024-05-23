@@ -1,8 +1,7 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-
-* {
-  padding: 0;
-  margin: 0;
+body {
+  margin: 0px;
+  padding: 0px;
 }

@@ -34,18 +34,6 @@ app.use(
   })
 );
 
-// const upload = multer({
-//   storage: multer.memoryStorage(),
-//   fileFilter: (req, file, cb) => {
-//     if (file.mimetype === "image/png") {
-//       cb(null, true);
-//     } else {
-//       cb(new Error("Only PNG files are allowed"));
-//     }
-//   },
-// });
-// app.use(upload.single("albumCover"));
-
 configRoutes(app);
 
 app.listen(3000, () => {

@@ -4,8 +4,9 @@
 .leaflet-container {
   padding: 15px;
   margin-top: 30px;
-  margin: auto;
-  height: 80vh;
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  height: 60vh;
   width: 90%;
-  padding-bottom: 30px;
+  padding-bottom: 40%;
 }

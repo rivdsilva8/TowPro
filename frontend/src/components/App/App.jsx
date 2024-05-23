@@ -7,6 +7,7 @@ import { NotFound } from "../../pages/NotFound/NotFound";
 import { Navbar } from "../Navbar/Navbar";
 import { AuthProvider } from "../../firebase/Auth";
 import { Map } from "../Map/Map";
+import { Footer } from "../Footer/Footer";
 
 function App() {
   return (

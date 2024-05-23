@@ -13,5 +13,4 @@ const getCollectionFn = (collection) => {
   };
 };
 
-export const users = getCollectionFn("users");
-export const playlists = getCollectionFn("playlists");
+export const gps = getCollectionFn("gps");
