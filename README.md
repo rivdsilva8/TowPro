@@ -80,8 +80,12 @@ or use postman and post to endpoint
     "header": 10.0003
 }
 
-
    ```
+### Limits
+- Latitude: Valid range is from -90 to 90 degrees.
+- Longitude: Valid range is from -180 to 180 degrees.
+- Header: Valid range is from 0 to 180 degrees.
+
 
 
 
