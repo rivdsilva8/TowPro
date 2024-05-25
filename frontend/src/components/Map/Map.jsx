@@ -109,7 +109,7 @@ export const Map = () => {
 
     fetchLocationData();
 
-    const interval = setInterval(fetchLocationData, 10000);
+    const interval = setInterval(fetchLocationData, 1000);
 
     return () => clearInterval(interval);
   }, [locationData]);
