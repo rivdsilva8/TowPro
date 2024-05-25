@@ -75,7 +75,7 @@ you can either use the UI on /maps page
 or use postman and post to endpoint
 
 ```bash
-http://localhost:3001/gpsstatus
+http://104.237.156.10:3001/gpsstatus
 ```
 
 ### raw JSON format
