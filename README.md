@@ -36,10 +36,10 @@ There are 2 parts to the application
    npm i
    ```
 
-3. The Backend server will be running by default on port 3000
+3. The Backend server will be running by default on port 3001
 
 ```bash
- http://localhost:3000
+ http://localhost:3001
 ```
 
 # Front-End :
@@ -62,11 +62,11 @@ There are 2 parts to the application
    npm run dev
    ```
 
-4. The Frontend server will be running by default on port 5173
+4. The Frontend server will be running by default on port 5174
    open the link on a web browser to view the application
 
    ```bash
-   http://localhost:5173
+   http://localhost:5174
    ```
 
 ## Making Post Requests to /gpsstatus
@@ -75,7 +75,7 @@ you can either use the UI on /maps page
 or use postman and post to endpoint
 
 ```bash
-http://localhost:3000/gpsstatus
+http://localhost:3001/gpsstatus
 ```
 
 ### raw JSON format
