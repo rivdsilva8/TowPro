@@ -38,7 +38,5 @@ configRoutes(app);
 
 app.listen(3001, () => {
   console.log("Server is running!!");
-  console.log(
-    "Your routes will be running on http://104.237.156.10:3001/gpsstatus"
-  );
+  console.log("Your routes will be running on http://104.237.156.10:3001");
 });
