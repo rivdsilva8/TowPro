@@ -70,7 +70,9 @@ export const Map = () => {
   useEffect(() => {
     const fetchLocationData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/gpsstatus");
+        const response = await axios.get(
+          "http://104.237.156.10:3001/gpsstatus"
+        );
         const newLocationData = response.data;
         console.log("Response from server:", newLocationData);
         console.log("Current location data:", locationData);
@@ -140,11 +142,11 @@ export const Map = () => {
       setErrors({});
       // Proceed with form submission
       await axios
-        .post("http://localhost:3000/gpsstatus", { lat, lng, header })
+        .post("http://104.237.156.10:3001/gpsstatus", { lat, lng, header })
         .then((response) => {
           // After successful POST request, make a GET request to fetch updated location data
           console.log("posted successfully");
-          axios.get("http://localhost:3000/gpsstatus").then((response) => {
+          axios.get("http://104.237.156.10:3001/gpsstatus").then((response) => {
             // Update location data with the response data
             console.log(response.data);
             setLocationData(response.data);
