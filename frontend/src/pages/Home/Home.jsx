@@ -1,5 +1,6 @@
 import React from "react";
 import "./Home.css";
+import { Link } from "react-router-dom";
 export const Home = () => {
   return (
     <div className="home-container">
@@ -23,7 +24,10 @@ export const Home = () => {
               technological innovations for a smoother, more reliable towing
               experience.
             </p>
-            <button className="btn btn-primary">Get Started</button>
+
+            <Link to="/map" className="btn btn-primary">
+              Get Started
+            </Link>
           </div>
         </div>
       </div>

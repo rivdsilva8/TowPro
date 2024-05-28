@@ -8,6 +8,7 @@ import { MapContainer, TileLayer, Popup } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import { Icon } from "leaflet";
 import "leaflet-rotatedmarker";
+import { Info } from "../Info/Info";
 
 const RotatedMarker = ({ position, rotationAngle, mapRef }) => {
   const [marker, setMarker] = useState(null);
@@ -70,9 +71,8 @@ export const Map = () => {
   useEffect(() => {
     const fetchLocationData = async () => {
       try {
-        const response = await axios.get(
-          "http://104.237.156.10:3001/gpsstatus"
-        );
+        const response = await axios.get("http://localhost:3001/gpsstatus");
+
         const newLocationData = response.data;
         console.log("Response from server:", newLocationData);
         console.log("Current location data:", locationData);
@@ -142,11 +142,11 @@ export const Map = () => {
       setErrors({});
       // Proceed with form submission
       await axios
-        .post("http://104.237.156.10:3001/gpsstatus", { lat, lng, header })
+        .post("http://localhost:3001/gpsstatus", { lat, lng, header })
         .then((response) => {
           // After successful POST request, make a GET request to fetch updated location data
           console.log("posted successfully");
-          axios.get("http://104.237.156.10:3001/gpsstatus").then((response) => {
+          axios.get("http://localhost:3001/gpsstatus").then((response) => {
             // Update location data with the response data
             console.log(response.data);
             setLocationData(response.data);
@@ -169,28 +169,31 @@ export const Map = () => {
   //end of handlesubmit
   return (
     <>
-      <MapContainer
-        center={[40.64894927418784, -73.95008611696765]}
-        zoom={15}
-        ref={mapRef}
-        className="mb-1 mt-6"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url={lightModeUrl}
-        />
-
-        {locationData && !locationData.error && (
-          <RotatedMarker
-            position={[locationData.lat, locationData.lng]}
-            rotationAngle={parseFloat(locationData.header)}
-            mapRef={mapRef}
+      <div className="info-map bg-white">
+        <Info locationData={locationData} />
+        <MapContainer
+          center={[40.64894927418784, -73.95008611696765]}
+          zoom={15}
+          ref={mapRef}
+          className="mb-1 mt-6"
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url={lightModeUrl}
           />
-        )}
-      </MapContainer>
+
+          {locationData && !locationData.error && (
+            <RotatedMarker
+              position={[locationData.lat, locationData.lng]}
+              rotationAngle={parseFloat(locationData.header)}
+              mapRef={mapRef}
+            />
+          )}
+        </MapContainer>
+      </div>
 
       {/* Form */}
-      <div className="flex justify-center h-screen bg-white pb-[40px]">
+      {/* <div className="flex justify-center h-screen bg-white pb-[40px]">
         <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100 max-h-[600px] mt-2">
           <form className="card-body" onSubmit={handleSubmit}>
             <h2>Change GPS Marker</h2>
@@ -246,7 +249,7 @@ export const Map = () => {
             </div>
           </form>
         </div>
-      </div>
+      </div> */}
     </>
   );
 };
