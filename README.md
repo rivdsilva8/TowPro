@@ -93,4 +93,4 @@ http://104.237.156.10:3001/gpsstatus
 
 - Latitude: Valid range is from -90 to 90 degrees.
 - Longitude: Valid range is from -180 to 180 degrees.
-- Header: Valid range is from 0 to 360 degrees.
+- Heading: Valid range is from 0 to 360 degrees.
