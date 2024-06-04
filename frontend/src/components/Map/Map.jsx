@@ -182,7 +182,7 @@ export const Map = () => {
 
           {locationData && !locationData.error && (
             <RotatedMarker
-              position={[locationData.lat, locationData.lng]}
+              position={[locationData.lat, locationData.lon]}
               rotationAngle={parseFloat(locationData.header)}
               mapRef={mapRef}
             />

@@ -1,4 +1,4 @@
-import "./Info.css";
+import "./Info.css"
 export const Info = ({ locationData }) => {
   return (
     <div className="bg-black text-white  info">
@@ -18,7 +18,7 @@ export const Info = ({ locationData }) => {
         <div className="flex mx-auto my-2">
           <h1>Longitude:</h1>
           <h1 className="bg-gray-200 px-2 text-black rounded-lg border border-gray-400 ml-3">
-            {locationData.lng}
+            {locationData.lon}
           </h1>
         </div>
         <div className="flex mx-auto my-2">
@@ -29,5 +29,5 @@ export const Info = ({ locationData }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
