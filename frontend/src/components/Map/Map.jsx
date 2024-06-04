@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect } from "react"
 import L from "leaflet"
 import "./Map.css"
-import navCursor from "../../assets/nc.svg"
 import "leaflet/dist/leaflet.css"
 import axios from "axios"
-import { MapContainer, TileLayer, Popup } from "react-leaflet"
-import { Marker } from "react-leaflet"
-import { Icon } from "leaflet"
+import { MapContainer, TileLayer } from "react-leaflet"
 import "leaflet-rotatedmarker"
 import { Info } from "../Info/Info"
 
@@ -21,29 +18,25 @@ const RotatedMarker = ({ position, rotationAngle, mapRef }) => {
     })
 
     if (marker) {
-      // If marker exists, remove it before creating a new one
       marker.remove()
     }
 
-    // Create a new marker with rotation angle
     const newMarker = L.marker(position, {
       icon,
       rotationAngle,
       rotationOrigin: "center center",
     }).addTo(mapRef.current)
 
-    // Set the newly created marker
     setMarker(newMarker)
 
-    // Clean up function to remove the marker when component unmounts
     return () => {
       if (marker) {
         marker.remove()
       }
     }
-  }, [position, rotationAngle]) // Re-run effect when position or rotationAngle changes
+  }, [position, rotationAngle])
 
-  return null // Marker is created directly in the useEffect, so return null here
+  return null
 }
 
 export default RotatedMarker
@@ -55,7 +48,7 @@ export const Map = () => {
     heading: 0,
   })
   const [lat, setLat] = useState(0)
-  const [lon, setlon] = useState(0)
+  const [lon, setLon] = useState(0)
   const [heading, setHeading] = useState(0)
   const [errors, setErrors] = useState({})
   const [rAngle, setRAngle] = useState(0)
@@ -63,11 +56,6 @@ export const Map = () => {
 
   const lightModeUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
-  const icon = new L.Icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/1417/1417847.png",
-    iconSize: [38, 38],
-    className: "",
-  })
   useEffect(() => {
     const fetchLocationData = async () => {
       try {
@@ -77,7 +65,6 @@ export const Map = () => {
         console.log("Response from server:", newLocationData)
         console.log("Current location data:", locationData)
 
-        // Update location data if it has changed
         if (
           newLocationData.lat !== locationData.lat ||
           newLocationData.lon !== locationData.lon ||
@@ -90,21 +77,20 @@ export const Map = () => {
       }
     }
 
-    const updateLocationData = async (newLocationData) => {
+    const updateLocationData = (newLocationData) => {
       setLocationData(newLocationData)
-      setRAngle(locationData.heading)
+      setRAngle(newLocationData.heading)
       console.log("locationData after setting:", newLocationData)
       console.log(rAngle)
       const newPosition = [newLocationData.lat, newLocationData.lon]
       mapRef.current.setView(newPosition, 20, {
         animate: true,
-        duration: 1, // Animation duration in seconds
+        duration: 1,
       })
 
       const newRotationAngle = parseFloat(newLocationData.heading) || 0
-      console.log("locationData after setting:", newLocationData)
-      setRAngle(newRotationAngle) // Update the rotation angle state
-      console.log("rotationAngle = ", newRotationAngle) // Log the new rotation angle
+      setRAngle(newRotationAngle)
+      console.log("rotationAngle = ", newRotationAngle)
     }
 
     fetchLocationData()
@@ -117,18 +103,19 @@ export const Map = () => {
   const validateForm = () => {
     const errors = {}
     const latNum = parseFloat(lat)
-    const lngNum = parseFloat(lon)
+    const lonNum = parseFloat(lon)
+    const headingNum = parseFloat(heading)
 
     if (isNaN(latNum) || latNum < -90 || latNum > 90) {
       errors.lat = "Latitude must be a number between -90 and 90."
     }
 
-    if (isNaN(lngNum) || lngNum <= -180 || lngNum > 180) {
-      errors.lng = "Longitude must be a number between -180 and 180."
+    if (isNaN(lonNum) || lonNum <= -180 || lonNum > 180) {
+      errors.lon = "Longitude must be a number between -180 and 180."
     }
 
-    if (isNaN(header) || header <= 0 || header > 360) {
-      errors.header = "Header must be a number between 0 and 360."
+    if (isNaN(headingNum) || headingNum < 0 || headingNum > 360) {
+      errors.heading = "Heading must be a number between 0 and 360."
     }
 
     return errors
@@ -140,31 +127,27 @@ export const Map = () => {
 
     if (Object.keys(validationErrors).length === 0) {
       setErrors({})
-      // Proceed with form submission
-      await axios.post("http://localhost:3001/gpsstatus", { lat, lon, header }).then((response) => {
-        // After successful POST request, make a GET request to fetch updated location data
-        console.log("posted successfully")
-        axios.get("http://localhost:3001/gpsstatus").then((response) => {
-          // Update location data with the response data
-          console.log(response.data)
-          setLocationData(response.data)
+      try {
+        await axios.post("http://localhost:3001/gpsstatus", { lat, lon, heading })
+        console.log("Posted successfully")
+        const response = await axios.get("http://localhost:3001/gpsstatus")
+        console.log(response.data)
+        setLocationData(response.data)
 
-          // Focus the map on the new marker with animation
-          const newPosition = [response.data.lat, response.data.lng]
-          mapRef.current.setView(newPosition, 20, {
-            animate: true,
-            duration: 1, // Animation duration in seconds
-          })
+        const newPosition = [response.data.lat, response.data.lon]
+        mapRef.current.setView(newPosition, 20, {
+          animate: true,
+          duration: 1,
         })
-      })
-
-      console.log("Form submitted", { lat, lng, header })
+        console.log("Form submitted", { lat, lon, heading })
+      } catch (error) {
+        console.error("Error posting location data:", error)
+      }
     } else {
       setErrors(validationErrors)
     }
   }
 
-  //end of handlesubmit
   return (
     <>
       <div className="info-map bg-white">
@@ -179,11 +162,10 @@ export const Map = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url={lightModeUrl}
           />
-
-          {locationData && !locationData.error && (
+          {locationData && (
             <RotatedMarker
               position={[locationData.lat, locationData.lon]}
-              rotationAngle={parseFloat(locationData.header)}
+              rotationAngle={parseFloat(locationData.heading)}
               mapRef={mapRef}
             />
           )}
@@ -215,30 +197,30 @@ export const Map = () => {
                 <span className="label-text">Longitude</span>
               </label>
               <input
-                name="lng"
+                name="lon"
                 type="number"
                 placeholder="Longitude"
                 className="input input-bordered"
                 required
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
+                value={lon}
+                onChange={(e) => setLon(e.target.value)}
               />
-              {errors.lng && <p className="text-red-500">{errors.lng}</p>}
+              {errors.lon && <p className="text-red-500">{errors.lon}</p>}
             </div>
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Header</span>
+                <span className="label-text">Heading</span>
               </label>
               <input
-                name="header"
-                type="text"
-                placeholder="Header"
+                name="heading"
+                type="number"
+                placeholder="Heading"
                 className="input input-bordered"
                 required
-                value={header}
-                onChange={(e) => setHeader(e.target.value)}
+                value={heading}
+                onChange={(e) => setHeading(e.target.value)}
               />
-              {errors.header && <p className="text-red-500">{errors.header}</p>}
+              {errors.heading && <p className="text-red-500">{errors.heading}</p>}
             </div>
             <div className="form-control mt-6">
               <button type="submit" className="btn btn-primary">
